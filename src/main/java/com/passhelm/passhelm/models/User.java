@@ -1,20 +1,41 @@
 package com.passhelm.passhelm.models;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+
+@Entity
+@Table(name = "_user")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotEmpty
     private String username;
+
+    @NotEmpty
     private String name;
+
+    @NotEmpty
     private String email;
+
+    @NotEmpty
     private Boolean isEmailVerified;
+
+    @NotEmpty
     private String password;
 
-    public User(String username, String name, String email, Boolean isEmailVerified, String password) {
+    public User(String username, String name, String email, String password) {
         this.username = username;
         this.name = name;
         this.email = email;
-        this.isEmailVerified = isEmailVerified;
+        this.isEmailVerified = false;
         this.password = password;
+    }
+
+    public User() {
+
     }
 
     public Long getId() {

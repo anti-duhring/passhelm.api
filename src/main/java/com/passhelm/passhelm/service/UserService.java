@@ -15,7 +15,6 @@ public class UserService {
                         "mateusvnlima",
                         "Mateus Vinicius",
                         "mateusvnlima@gmail.com",
-                        true,
                         "123456"
                 )
         );
