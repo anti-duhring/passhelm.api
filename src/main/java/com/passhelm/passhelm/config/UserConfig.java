@@ -1,0 +1,35 @@
+package com.passhelm.passhelm.config;
+
+import com.passhelm.passhelm.models.User;
+import com.passhelm.passhelm.repository.UserRepository;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+
+@Configuration
+public class UserConfig {
+
+    @Bean
+    CommandLineRunner commandLineRunner(UserRepository repository) {
+        return args -> {
+            User mateus = new User(
+                    "mateusvnlima",
+                    "Mateus Vinicius",
+                    "mateusvnlima@gmail.com",
+                    "123456"
+            );
+            User tom = new User(
+                    "tombrady",
+                    "Tom Brady",
+                    "tombrady@gmail.com",
+                    "123456"
+            );
+
+            repository.saveAll(
+                    List.of(mateus, tom)
+            );
+        };
+    }
+}

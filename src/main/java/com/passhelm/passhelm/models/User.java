@@ -2,6 +2,7 @@ package com.passhelm.passhelm.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "_user")
@@ -20,8 +21,9 @@ public class User {
     @NotEmpty
     private String email;
 
-    @NotEmpty
-    private Boolean isEmailVerified;
+    @NotNull
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isEmailVerified = false;
 
     @NotEmpty
     private String password;
