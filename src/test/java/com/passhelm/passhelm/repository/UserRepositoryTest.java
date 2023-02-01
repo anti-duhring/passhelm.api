@@ -27,6 +27,15 @@ public class UserRepositoryTest {
     }
 
     @Test
+    public void shouldNotFindAUserByUsername() {
+
+        String username = "mateusvnlima2";
+        Optional<User> user = repository.findByUsername(username);
+
+        Assertions.assertEquals(Optional.empty(), user);
+    }
+
+    @Test
     public void shouldFindAUserByEmail() {
 
         String email = "tombrady@gmail.com";
@@ -34,5 +43,13 @@ public class UserRepositoryTest {
 
         Assertions.assertNotNull(user);
         Assertions.assertEquals(email, user.get().getEmail());
+    }
+
+    @Test
+    public void shouldNotFindAUserByEmail() {
+        String email = "tombrady2@gmail.com";
+        Optional<User> user = repository.findByEmail(email);
+
+        Assertions.assertEquals(Optional.empty(), user);
     }
 }
