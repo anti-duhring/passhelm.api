@@ -1,16 +1,34 @@
 package com.passhelm.passhelm.models;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+@Entity
+@Table(name = "_category")
 public class Category {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull
     private Long userId;
+
+    @NotEmpty
     private String label;
+
+    @NotEmpty
     private String color;
 
     public Category(Long userId, String label, String color) {
         this.userId = userId;
         this.label = label;
         this.color = color;
+    }
+
+    public Category() {
+
     }
 
     public Long getUserId() {

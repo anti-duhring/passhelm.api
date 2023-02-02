@@ -1,19 +1,24 @@
 package com.passhelm.passhelm.controllers;
 
-import com.passhelm.passhelm.models.User;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.net.URI;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@EnableWebMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles("test")
@@ -141,6 +146,82 @@ class UserControllerTest {
         ).andExpectAll(
                 MockMvcResultMatchers.status().is(200)
         );
+    }
+
+    @Test()
+    @Order(5)
+    void shouldThrowsIllegalStateExceptionWhenCreateUserWithUsernameAlreadyInUse() throws Exception {
+        URI uri = URI.create("http://localhost:8080/api/v1/user");
+
+        String json = "{\n" +
+                "    \"name\": \"Mateus Vinicius\",\n" +
+                "    \"email\": \"mateusvnlima@gmail.com\",\n" +
+                "    \"username\": \"tom_brady\",\n" +
+                "    \"password\": \"!A34567a9123\"\n" +
+                "}";
+
+        try {
+
+            MvcResult result = mockMvc
+                    .perform(MockMvcRequestBuilders
+                            .post(uri)
+                            .contentType("application/json")
+                            .content(json)
+                    )
+                    .andReturn();
+
+        } catch(Exception e) {
+            Assertions.assertEquals( "Request processing failed: java.lang.IllegalStateException: Username taken", e.getMessage());
+        }
+    }
+
+    @Test()
+    @Order(6)
+    void shouldThrowsIllegalStateExceptionWhenCreateUserWithEmailAlreadyInUse() throws Exception {
+        URI uri = URI.create("http://localhost:8080/api/v1/user");
+
+        String json = "{\n" +
+                "    \"name\": \"Mateus Vinicius\",\n" +
+                "    \"email\": \"mateusvnlima@gmail.com\",\n" +
+                "    \"username\": \"mateus_vinicius\",\n" +
+                "    \"password\": \"!A34567a9123\"\n" +
+                "}";
+
+        try {
+
+            MvcResult result = mockMvc
+                    .perform(MockMvcRequestBuilders
+                            .post(uri)
+                            .contentType("application/json")
+                            .content(json)
+                    )
+                    .andReturn();
+
+        } catch(Exception e) {
+            Assertions.assertEquals( "Request processing failed: java.lang.IllegalStateException: Email taken",
+                    e.getMessage());
+        }
+
+
+    }
+
+    @Test
+    @Order(7)
+    void shouldThrowsIllegalStateExceptionWhenTryToDeleteAnInexistentUser() throws Exception {
+        URI uri = URI.create("http://localhost:8080/api/v1/100");
+
+        try {
+
+            MvcResult result = mockMvc
+                    .perform(MockMvcRequestBuilders
+                            .delete(uri)
+                    )
+                    .andReturn();
+
+        } catch(Exception e) {
+            Assertions.assertEquals( "Request processing failed: java.lang.IllegalStateException: Email taken",
+                    e.getMessage());
+        }
     }
 
 }
