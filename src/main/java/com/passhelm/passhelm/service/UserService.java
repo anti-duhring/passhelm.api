@@ -55,33 +55,34 @@ public class UserService {
     @Transactional
     public User updateUser(
             Long id,
-            String username,
-            String email,
-            String name
+            User user
     ) {
-        User user = userRepository.findById(id).orElseThrow(() -> new IllegalStateException("User does not exist"));
+        User userToUpdate = userRepository.findById(id).orElseThrow(() -> new IllegalStateException("User does not " +
+                "exist"));
 
-        if (name != null && name.length() > 0 && user.getName() != name) {
-            user.setName(name);
+        System.out.println(user);
+
+        if (user.getName() != null && user.getName().length() > 0 && userToUpdate.getName() != user.getName()) {
+            userToUpdate.setName(user.getName());
         }
-        if (email!= null && email.length() > 0 && user.getEmail()!= email) {
-            Optional<User> userByEmail = userRepository.findByEmail(email);
+        if (user.getEmail() != null && user.getEmail().length() > 0 && userToUpdate.getEmail()!= user.getEmail()) {
+            Optional<User> userByEmail = userRepository.findByEmail(user.getEmail());
 
             if(userByEmail.isPresent()) {
                 throw new IllegalStateException("Email taken");
             }
-            user.setEmail(email);
+            userToUpdate.setEmail(user.getEmail());
         }
-        if(username!= null && username.length() > 0 && user.getUsername()!= username) {
-            Optional<User> userByUsername = userRepository.findByUsername(username);
+        if(user.getUsername() != null && user.getUsername().length() > 0 && userToUpdate.getUsername()!= user.getUsername()) {
+            Optional<User> userByUsername = userRepository.findByUsername(user.getUsername());
 
             if(userByUsername.isPresent()) {
                 throw new IllegalStateException("Username taken");
             }
 
-            user.setUsername(username);
+            userToUpdate.setUsername(user.getUsername());
         }
 
-        return user;
+        return userToUpdate;
     }
 }
