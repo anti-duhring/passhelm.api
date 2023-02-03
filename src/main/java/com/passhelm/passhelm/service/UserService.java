@@ -60,8 +60,6 @@ public class UserService {
         User userToUpdate = userRepository.findById(id).orElseThrow(() -> new IllegalStateException("User does not " +
                 "exist"));
 
-        System.out.println(user);
-
         if (user.getName() != null && user.getName().length() > 0 && userToUpdate.getName() != user.getName()) {
             userToUpdate.setName(user.getName());
         }

@@ -39,9 +39,6 @@ public class UserController {
     public User updateUser(
             @PathVariable("id") Long id,
             @RequestBody User user
- /*           @RequestParam(name = "username", required = false) String username,
-            @RequestParam(name = "email", required = false) String email,
-            @RequestParam(name = "name", required = false) String name*/
     ) {
 
         return userService.updateUser(id, user);
