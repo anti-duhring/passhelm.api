@@ -4,6 +4,7 @@ import com.passhelm.passhelm.models.Category;
 import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +24,15 @@ public class CategoryService {
         this.userRepository = userRepository;
     }
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<Category> getAllCategories(Long userId) {
+
+        if (userId == null) {
+            throw new IllegalStateException("User Id cannot be empty");
+        }
+
+        List<Category> allCategories = categoryRepository.findAllByUserId(userId);
+
+        return allCategories;
     }
 
     public Category createCategory(Category category) {
@@ -45,5 +53,32 @@ public class CategoryService {
         }
 
         return categoryRepository.save(category);
+    }
+
+    @Transactional
+    public Category updateCategory(Category category, Long id) {
+
+        Category categoryToUpdate = categoryRepository.findById(id).orElseThrow(() -> new IllegalStateException(
+                "Category does not exist"));
+
+        if(category.getColor() != categoryToUpdate.getColor()) {
+            categoryToUpdate.setColor(category.getColor());
+        }
+        if(category.getLabel()!= categoryToUpdate.getLabel()) {
+            categoryToUpdate.setLabel(category.getLabel());
+        }
+
+        return categoryToUpdate;
+    }
+
+    public void deleteCategory(Long id) {
+
+        Boolean categoryExist = categoryRepository.existsById(id);
+
+        if(!categoryExist) {
+            throw new IllegalStateException("Category does not exist");
+        }
+
+        categoryRepository.deleteById(id);
     }
 }

@@ -29,7 +29,7 @@ class CategoryControllerTest {
     @Order(1)
     void shouldGet200StatusCodeWhenGetAllCategories() throws Exception {
 
-        URI uri = URI.create("http://localhost:8080/api/v1/category");
+        URI uri = URI.create("http://localhost:8080/api/v1/category?userId=1");
 
         mockMvc.perform(
                 MockMvcRequestBuilders
@@ -157,5 +157,46 @@ class CategoryControllerTest {
                     e.getMessage());
         }
 
+    }
+
+    @Test
+    @Order(6)
+    void shouldGet200StatusAndCategoryDataWhenUpdateCategory() throws Exception{
+        URI uri = URI.create("http://localhost:8080/api/v1/category/2");
+
+        String json = "{\n" +
+                "    \"label\": \"Rede Social\",\n" +
+                "    \"color\": \"#FFFFFF\"\n" +
+                "}";
+
+        mockMvc
+                .perform(
+                        MockMvcRequestBuilders
+                             .put(uri)
+                             .contentType("application/json")
+                            .content(json)
+                )
+                .andExpectAll(
+                        MockMvcResultMatchers.status().is(200),
+                        MockMvcResultMatchers.jsonPath("$.userId").value(2),
+                        MockMvcResultMatchers.jsonPath("$.label").value("Rede Social"),
+                        MockMvcResultMatchers.jsonPath("$.color").value("#FFFFFF")
+
+                );
+    }
+
+    @Test
+    @Order(7)
+    void shouldGet200StatusWhenDeleteCategory() throws Exception{
+        URI uri = URI.create("http://localhost:8080/api/v1/category/2");
+
+        mockMvc
+                .perform(
+                        MockMvcRequestBuilders
+                              .delete(uri)
+                )
+                .andExpectAll(
+                        MockMvcResultMatchers.status().is(200)
+                );
     }
 }
