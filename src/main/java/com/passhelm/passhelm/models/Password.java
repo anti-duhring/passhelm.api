@@ -1,12 +1,30 @@
 package com.passhelm.passhelm.models;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+@Entity
+@Table(name = "_password")
 public class Password {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull
     private Long userId;
+
+    @NotNull
     private Long categoryId;
+
+    @NotEmpty
     private String title;
+
+    @NotEmpty
     private String login;
+
+    @NotEmpty
     private String password;
 
     public Password(Long userId, Long categoryId, String title, String login, String password) {
@@ -15,6 +33,10 @@ public class Password {
         this.title = title;
         this.login = login;
         this.password = password;
+    }
+
+    public Password() {
+
     }
 
     public Long getId() {
