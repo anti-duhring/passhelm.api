@@ -28,4 +28,9 @@ public class PasswordController {
     public Password createPassword(@RequestBody Password password) {
         return passwordService.createPassword(password);
     }
+
+    @PutMapping("/password/{passwordId}")
+    public Password updatePassword(@PathVariable("passwordId") Long passwordId, @RequestBody Password password) {
+        return passwordService.updatePassword(passwordId, password);
+    }
 }

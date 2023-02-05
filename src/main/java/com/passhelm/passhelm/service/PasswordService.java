@@ -6,6 +6,7 @@ import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.PasswordRepository;
 import com.passhelm.passhelm.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,5 +49,46 @@ public class PasswordService {
 
         Password newPassword = passwordRepository.save(password);
         return newPassword;
+    }
+
+    @Transactional
+    public Password updatePassword(Long passwordId, Password password) {
+        Password passwordToUpdate = passwordRepository.findById(passwordId).orElseThrow(() -> new IllegalStateException(
+                "Password does not " +
+                "exist"));
+        Category category =
+                categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new IllegalStateException(
+                        "Category does not exist"));
+
+        if(category.getUserId()!= passwordToUpdate.getUserId()) {
+            throw new IllegalStateException("Category not belong to user");
+        }
+
+        if(password.getCategoryId()!= passwordToUpdate.getCategoryId()) {
+            passwordToUpdate.setCategoryId(password.getCategoryId());
+        }
+        if(
+                password.getPassword()!= null &&
+                password.getPassword().length() > 0 &&
+                password.getPassword() != passwordToUpdate.getPassword()
+        ) {
+            passwordToUpdate.setPassword(password.getPassword());
+        }
+        if(
+                password.getLogin()!= null &&
+                password.getLogin().length() > 0 &&
+                password.getLogin()!= passwordToUpdate.getLogin()
+        ) {
+            passwordToUpdate.setLogin(password.getLogin());
+        }
+        if(
+                password.getTitle()!= null &&
+                password.getTitle().length() > 0 &&
+                password.getTitle()!= passwordToUpdate.getTitle()
+        ) {
+            passwordToUpdate.setTitle(password.getTitle());
+        }
+
+        return passwordToUpdate;
     }
 }
