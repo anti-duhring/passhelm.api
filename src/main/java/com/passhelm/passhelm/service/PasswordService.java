@@ -91,4 +91,15 @@ public class PasswordService {
 
         return passwordToUpdate;
     }
+
+    public void deletePassword(Long passwordId) {
+
+        Boolean passwordExists = passwordRepository.existsById(passwordId);
+
+        if(!passwordExists) {
+            throw new IllegalStateException("Password does not exist");
+        }
+
+        passwordRepository.deleteById(passwordId);
+    }
 }

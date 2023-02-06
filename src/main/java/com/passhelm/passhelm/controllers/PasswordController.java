@@ -33,4 +33,9 @@ public class PasswordController {
     public Password updatePassword(@PathVariable("passwordId") Long passwordId, @RequestBody Password password) {
         return passwordService.updatePassword(passwordId, password);
     }
+
+    @DeleteMapping("/password/{passwordId}")
+    public void deletePassword(@PathVariable("passwordId") Long passwordId) {
+        passwordService.deletePassword(passwordId);
+    }
 }
