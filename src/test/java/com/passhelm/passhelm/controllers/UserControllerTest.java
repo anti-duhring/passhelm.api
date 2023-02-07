@@ -65,7 +65,7 @@ class UserControllerTest {
             )
             .andExpect(MockMvcResultMatchers
                     .status()
-                    .is(200)
+                    .isOk()
             )
             .andDo(result -> System.out.println(result.getResponse().getContentAsString()));
         } catch (Exception e) {
@@ -94,7 +94,7 @@ class UserControllerTest {
                     )
                     .andExpect(MockMvcResultMatchers
                             .status()
-                            .is(200)
+                            .isCreated()
                     )
                     .andExpect(MockMvcResultMatchers
                             .jsonPath("$.name").value("Tom Brady")
@@ -104,9 +104,6 @@ class UserControllerTest {
                     )
                     .andExpect(MockMvcResultMatchers
                             .jsonPath("$.username").value("tom_brady")
-                    )
-                    .andExpect(MockMvcResultMatchers
-                            .jsonPath("$.password").value("!A34567a9123")
                     );
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,7 +126,7 @@ class UserControllerTest {
                 .contentType("application/json")
                 .content(json)
         ).andExpectAll(
-                MockMvcResultMatchers.status().is(200),
+                MockMvcResultMatchers.status().isOk(),
                 MockMvcResultMatchers.jsonPath("$.name").value("Mac Jones"),
                 MockMvcResultMatchers.jsonPath("$.email").value("mac_jones@gmail.com"),
                 MockMvcResultMatchers.jsonPath("$.username").value("mac_jones")
@@ -144,7 +141,7 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                 .delete(uri)
         ).andExpectAll(
-                MockMvcResultMatchers.status().is(200)
+                MockMvcResultMatchers.status().isNoContent()
         );
     }
 

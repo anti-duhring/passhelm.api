@@ -1,11 +1,15 @@
 package com.passhelm.passhelm.controllers;
 
 import com.passhelm.passhelm.models.Category;
+import com.passhelm.passhelm.records.CategoryResponse;
 import com.passhelm.passhelm.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -20,27 +24,35 @@ public class CategoryController {
     }
 
     @GetMapping("/category")
-    public List<Category> getAllCategories(@Param("userId") Long userId) {
+    public ResponseEntity<List<Category>> getAllCategories(@Param("userId") Long userId) {
 
-        return categoryService.getAllCategories(userId);
+        List<Category> categories = categoryService.getAllCategories(userId);
+
+        return ResponseEntity.ok(categories);
     }
 
     @PostMapping("/category")
-    public Category createCategory(@RequestBody Category category){
+    public ResponseEntity<CategoryResponse> createCategory(@RequestBody Category category, UriComponentsBuilder uriComponentsBuilder){
 
-        return categoryService.createCategory(category);
+        Category newCategory = categoryService.createCategory(category);
+        URI uri = uriComponentsBuilder.path("/category/{id}").buildAndExpand(newCategory.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(new CategoryResponse(newCategory));
     }
 
     @PutMapping("/category/{id}")
-    public Category updateCategory(@RequestBody Category category, @PathVariable("id") Long id){
+    public ResponseEntity<CategoryResponse> updateCategory(@RequestBody Category category, @PathVariable("id") Long id){
+        Category updatedCategory = categoryService.updateCategory(category, id);
 
-        return categoryService.updateCategory(category, id);
+        return ResponseEntity.ok(new CategoryResponse(updatedCategory));
     }
 
     @DeleteMapping("/category/{id}")
-    public void deleteCategory(@PathVariable("id") Long id){
+    public ResponseEntity deleteCategory(@PathVariable("id") Long id){
 
         categoryService.deleteCategory(id);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

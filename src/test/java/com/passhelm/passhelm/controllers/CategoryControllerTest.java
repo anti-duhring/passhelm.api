@@ -60,7 +60,7 @@ class CategoryControllerTest {
                                 .content(json)
                 )
                 .andExpectAll(
-                        MockMvcResultMatchers.status().is(200),
+                        MockMvcResultMatchers.status().isCreated(),
                         MockMvcResultMatchers.jsonPath("$.userId").value(1),
                         MockMvcResultMatchers.jsonPath("$.label").value("Trabalho"),
                         MockMvcResultMatchers.jsonPath("$.color").value("#000000")
@@ -196,7 +196,7 @@ class CategoryControllerTest {
                               .delete(uri)
                 )
                 .andExpectAll(
-                        MockMvcResultMatchers.status().is(200)
+                        MockMvcResultMatchers.status().isNoContent()
                 );
     }
 }

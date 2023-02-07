@@ -35,7 +35,7 @@ class PasswordControllerTest {
                 MockMvcRequestBuilders.get(uri)
         )
                 .andExpectAll(
-                        MockMvcResultMatchers.status().is(200)
+                        MockMvcResultMatchers.status().isOk()
                 );
     }
 
@@ -58,7 +58,7 @@ class PasswordControllerTest {
                       .content(json)
         )
                 .andExpectAll(
-                        MockMvcResultMatchers.status().is(200),
+                        MockMvcResultMatchers.status().isCreated(),
                         MockMvcResultMatchers.jsonPath("$.userId").value(1),
                         MockMvcResultMatchers.jsonPath("$.categoryId").value(1),
                         MockMvcResultMatchers.jsonPath("$.title").value("Teste"),
@@ -86,7 +86,7 @@ class PasswordControllerTest {
                      .content(json)
         )
                 .andExpectAll(
-                        MockMvcResultMatchers.status().is(200),
+                        MockMvcResultMatchers.status().isOk(),
                         MockMvcResultMatchers.jsonPath("$.userId").value(1),
                         MockMvcResultMatchers.jsonPath("$.categoryId").value(1),
                         MockMvcResultMatchers.jsonPath("$.title").value("Test2"),
@@ -104,7 +104,7 @@ class PasswordControllerTest {
                 MockMvcRequestBuilders.delete(uri)
         )
                .andExpectAll(
-                        MockMvcResultMatchers.status().is(200)
+                        MockMvcResultMatchers.status().isNoContent()
                 );
     }
 }
