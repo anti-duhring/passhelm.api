@@ -6,6 +6,7 @@ import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.PasswordRepository;
 import com.passhelm.passhelm.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,10 +37,10 @@ public class PasswordService {
         Optional<Category> category = categoryRepository.findById(password.getCategoryId());
 
         if(user.isEmpty())  {
-            throw new IllegalStateException("User not exist");
+            throw new EntityNotFoundException("User not exist");
         }
         if(category.isEmpty())  {
-            throw new IllegalStateException("Category not exist");
+            throw new EntityNotFoundException("Category not exist");
         }
         category.ifPresent(c -> {
             if(c.getUserId() != password.getUserId()) {
@@ -53,11 +54,11 @@ public class PasswordService {
 
     @Transactional
     public Password updatePassword(Long passwordId, Password password) {
-        Password passwordToUpdate = passwordRepository.findById(passwordId).orElseThrow(() -> new IllegalStateException(
+        Password passwordToUpdate = passwordRepository.findById(passwordId).orElseThrow(() -> new EntityNotFoundException(
                 "Password does not " +
                 "exist"));
         Category category =
-                categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new IllegalStateException(
+                categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(
                         "Category does not exist"));
 
         if(category.getUserId()!= passwordToUpdate.getUserId()) {
@@ -97,7 +98,7 @@ public class PasswordService {
         Boolean passwordExists = passwordRepository.existsById(passwordId);
 
         if(!passwordExists) {
-            throw new IllegalStateException("Password does not exist");
+            throw new EntityNotFoundException("Password does not exist");
         }
 
         passwordRepository.deleteById(passwordId);

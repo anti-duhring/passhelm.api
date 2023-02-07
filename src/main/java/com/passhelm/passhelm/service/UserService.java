@@ -1,7 +1,9 @@
 package com.passhelm.passhelm.service;
 
+import com.passhelm.passhelm.infra.ExceptionHandlerClass;
 import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +48,7 @@ public class UserService {
 
         Boolean userExists = userRepository.existsById(id);
         if(!userExists) {
-            throw new IllegalStateException("User does not exist");
+            throw new EntityNotFoundException("User does not exist");
         }
 
         userRepository.deleteById(id);
@@ -82,5 +84,16 @@ public class UserService {
         }
 
         return userToUpdate;
+    }
+
+    public User getUser(Long id) {
+
+        Optional<User> user = userRepository.findById(id);
+
+        if(!user.isPresent()) {
+            throw new EntityNotFoundException("User does not exist");
+        }
+
+        return user.get();
     }
 }

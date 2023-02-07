@@ -4,6 +4,7 @@ import com.passhelm.passhelm.models.Category;
 import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class CategoryService {
             throw new IllegalStateException("User Id cannot be empty");
         }
         if(user.isEmpty()) {
-            throw new IllegalStateException("User does not exist");
+            throw new EntityNotFoundException("User does not exist");
         }
 
         return categoryRepository.save(category);
@@ -58,7 +59,7 @@ public class CategoryService {
     @Transactional
     public Category updateCategory(Category category, Long id) {
 
-        Category categoryToUpdate = categoryRepository.findById(id).orElseThrow(() -> new IllegalStateException(
+        Category categoryToUpdate = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 "Category does not exist"));
 
         if(category.getColor() != categoryToUpdate.getColor()) {
@@ -76,7 +77,7 @@ public class CategoryService {
         Boolean categoryExist = categoryRepository.existsById(id);
 
         if(!categoryExist) {
-            throw new IllegalStateException("Category does not exist");
+            throw new EntityNotFoundException("Category does not exist");
         }
 
         categoryRepository.deleteById(id);
