@@ -1,6 +1,5 @@
 package com.passhelm.passhelm.service;
 
-import com.passhelm.passhelm.infra.ExceptionHandlerClass;
 import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;

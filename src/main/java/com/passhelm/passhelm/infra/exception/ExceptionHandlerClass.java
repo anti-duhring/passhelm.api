@@ -1,4 +1,4 @@
-package com.passhelm.passhelm.infra;
+package com.passhelm.passhelm.infra.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;

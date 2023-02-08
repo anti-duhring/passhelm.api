@@ -5,6 +5,7 @@ import com.passhelm.passhelm.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
@@ -18,13 +19,13 @@ public class UserConfig {
                     "mateusvnlima",
                     "Mateus Vinicius",
                     "mateusvnlima@gmail.com",
-                    "123456"
+                    new BCryptPasswordEncoder().encode("123456")
             );
             User tom = new User(
                     "tombrady",
                     "Tom Brady",
                     "tombrady@gmail.com",
-                    "123456"
+                    new BCryptPasswordEncoder().encode("123456")
             );
 
             repository.saveAll(

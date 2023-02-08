@@ -3,10 +3,16 @@ package com.passhelm.passhelm.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "_user")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,7 +29,11 @@ public class User {
 
     @NotNull
     @Column(columnDefinition = "boolean default false")
-    private Boolean isEmailVerified = false;
+    private Boolean isEmailVerified;
+
+    @NotNull
+    @Column(columnDefinition = "boolean default true")
+    private Boolean isAdmin;
 
     @NotEmpty
     private String password;
@@ -33,6 +43,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.isEmailVerified = false;
+        this.isAdmin = false;
         this.password = password;
     }
 
@@ -40,12 +51,46 @@ public class User {
 
     }
 
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Boolean getAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        isAdmin = admin;
+    }
+
     public Long getId() {
         return id;
     }
 
+    @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     public void setUsername(String username) {
@@ -76,6 +121,12 @@ public class User {
         isEmailVerified = emailVerified;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
     public String getPassword() {
         return password;
     }
