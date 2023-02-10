@@ -1,5 +1,7 @@
 package com.passhelm.passhelm.controllers;
 
+import com.passhelm.passhelm.infra.security.AuthData;
+import com.passhelm.passhelm.infra.security.JWTTokenData;
 import com.passhelm.passhelm.infra.security.TokenService;
 import com.passhelm.passhelm.models.User;
 import jakarta.validation.Valid;
@@ -27,11 +29,13 @@ public class AuthController {
     public ResponseEntity login(@RequestBody @Valid AuthData authData) {
 
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(authData.login(),
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(authData.login(),
                 authData.password());
-        Authentication authenticate = manager.authenticate(token);
+        Authentication authenticate = manager.authenticate(authenticationToken);
 
-        return ResponseEntity.ok(tokenService.generateToken((User) authenticate.getPrincipal()));
+        String tokenJWT = tokenService.generateToken((User) authenticate.getPrincipal());
+
+        return ResponseEntity.ok(new JWTTokenData(tokenJWT));
     }
 
 }
