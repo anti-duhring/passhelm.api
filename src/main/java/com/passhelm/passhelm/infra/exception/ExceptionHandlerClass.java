@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
+
 @RestControllerAdvice
 public class ExceptionHandlerClass {
 
@@ -16,5 +18,10 @@ public class ExceptionHandlerClass {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity handle400Error(IllegalStateException exception) {
         return ResponseEntity.badRequest().body(exception.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity handle403Error(AccessDeniedException exception) {
+        return ResponseEntity.status(403).body(exception.getMessage());
     }
 }

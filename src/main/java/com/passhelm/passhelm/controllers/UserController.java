@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.nio.file.AccessDeniedException;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -30,9 +32,9 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<User>> getAllUsers(Principal principal) throws AccessDeniedException {
 
-        List<User> users = userService.getAllUsers();
+        List<User> users = userService.getAllUsers(principal);
 
         return ResponseEntity.ok(users);
     }
@@ -48,19 +50,20 @@ public class UserController {
     }
 
     @DeleteMapping(path = "/user/{id}")
-    public ResponseEntity deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
+    public ResponseEntity deleteUser(Principal principal, @PathVariable("id") Long id) throws AccessDeniedException {
+        userService.deleteUser(id, principal);
 
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(path = "/user/{id}")
     public ResponseEntity<UserResponse> updateUser(
+            Principal principal,
             @PathVariable("id") Long id,
             @RequestBody User user
-    ) {
+    ) throws AccessDeniedException {
 
-        User updatedUser = userService.updateUser(id, user);
+        User updatedUser = userService.updateUser(id, user, principal);
 
         return ResponseEntity.ok(new UserResponse(updatedUser));
     }

@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,20 +32,21 @@ public class User implements UserDetails {
     @Column(columnDefinition = "boolean default false")
     private Boolean isEmailVerified;
 
-    @NotNull
-    @Column(columnDefinition = "boolean default true")
-    private Boolean isAdmin;
-
     @NotEmpty
     private String password;
 
-    public User(String username, String name, String email, String password) {
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "roles", nullable = false)
+    private List<String> roles;
+
+    public User(String username, String name, String email, String password, List<String> roles) {
         this.username = username;
         this.name = name;
         this.email = email;
         this.isEmailVerified = false;
-        this.isAdmin = false;
         this.password = password;
+
+        this.roles = roles;
     }
 
     public User() {
@@ -54,14 +56,6 @@ public class User implements UserDetails {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Boolean getAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(Boolean admin) {
-        isAdmin = admin;
     }
 
     public Long getId() {
@@ -121,9 +115,16 @@ public class User implements UserDetails {
         isEmailVerified = emailVerified;
     }
 
+    public void setAuthorities(List<String> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        this.roles.forEach(role -> grantedAuthorities.add(new SimpleGrantedAuthority(role)));
+
+        return grantedAuthorities;
     }
 
     @Override
