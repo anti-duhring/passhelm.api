@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,14 +25,15 @@ public class PasswordController {
     }
 
     @GetMapping("/password")
-    public ResponseEntity<List<Password>> getAllPasswordsByUserId(@Param("userId") Long userId) {
-        List<Password> passwords = passwordService.getAllPasswordsByUserId(userId);
+    public ResponseEntity<List<Password>> getAllPasswordsByUserId(Principal principal, @Param("userId") Long userId) throws Exception {
+        List<Password> passwords = passwordService.getAllPasswordsByUserId(principal, userId);
         return ResponseEntity.ok(passwords);
     }
 
     @PostMapping("/password")
-    public ResponseEntity createPassword(@RequestBody Password password, UriComponentsBuilder uriBuilder) {
-        Password passwordCreated = passwordService.createPassword(password);
+    public ResponseEntity createPassword(Principal principal, @RequestBody Password password,
+                                         UriComponentsBuilder uriBuilder) throws Exception {
+        Password passwordCreated = passwordService.createPassword(principal, password);
 
         URI uri = uriBuilder.path("/password/{id}").buildAndExpand(passwordCreated.getId()).toUri();
 
@@ -39,9 +41,10 @@ public class PasswordController {
     }
 
     @PutMapping("/password/{passwordId}")
-    public ResponseEntity<PasswordResponse> updatePassword(@PathVariable("passwordId") Long passwordId,
-                                                           @RequestBody Password password) {
-        Password passwordUpdated = passwordService.updatePassword(passwordId, password);
+    public ResponseEntity<PasswordResponse> updatePassword(Principal principal,
+                                                           @PathVariable("passwordId") Long passwordId,
+                                                           @RequestBody Password password) throws Exception{
+        Password passwordUpdated = passwordService.updatePassword(principal, passwordId, password);
 
         return ResponseEntity.ok(new PasswordResponse(passwordUpdated));
     }

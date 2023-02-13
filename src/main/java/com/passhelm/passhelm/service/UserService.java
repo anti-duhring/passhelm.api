@@ -25,7 +25,7 @@ public class UserService {
 
     public List<User> getAllUsers(Principal principal) throws AccessDeniedException {
 
-        Boolean isAdmin = this.checkIfUserIsAdmin(principal.getName());
+        Boolean isAdmin = this.isPrincipalAdmin(principal);
         if(!isAdmin) {
             throw new AccessDeniedException("Access denied");
 
@@ -55,7 +55,7 @@ public class UserService {
     public void deleteUser(Long id, Principal principal) throws AccessDeniedException {
 
         Boolean userExists = userRepository.existsById(id);
-        Boolean isAdmin = this.checkIfUserIsAdmin(principal.getName());
+        Boolean isAdmin = this.isPrincipalAdmin(principal);
         if(!isAdmin) {
             throw new AccessDeniedException("Access denied");
 
@@ -74,7 +74,7 @@ public class UserService {
             Principal principal
     ) throws AccessDeniedException {
 
-        Boolean isAdmin = this.checkIfUserIsAdmin(principal.getName());
+        Boolean isAdmin = this.isPrincipalAdmin(principal);
         Long principalId = userRepository.findByUsername(principal.getName()).get().getId();
         if(!isAdmin && principalId!= id) {
             throw new AccessDeniedException("Access denied");
@@ -130,8 +130,9 @@ public class UserService {
         return userUpdated;
     }
 
-    public Boolean checkIfUserIsAdmin(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("User does not " + "exist"));
+    public Boolean isPrincipalAdmin(Principal principal) {
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
+                "User does not " + "exist"));
 
         return user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }

@@ -1,12 +1,10 @@
 package com.passhelm.passhelm.controllers;
 
-import com.passhelm.passhelm.infra.security.SecurityConfig;
 import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -33,7 +31,7 @@ public class AdminController {
             @RequestBody List<String> roles
     ) {
 
-        Boolean isAdmin = userService.checkIfUserIsAdmin(principal.getName());
+        Boolean isAdmin = userService.isPrincipalAdmin(principal);
 
         if(!isAdmin) {
             return ResponseEntity.status(403).build();

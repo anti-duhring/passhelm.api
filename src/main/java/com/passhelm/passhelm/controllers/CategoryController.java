@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,7 +25,7 @@ public class CategoryController {
     }
 
     @GetMapping("/category")
-    public ResponseEntity<List<Category>> getAllCategories(@Param("userId") Long userId) {
+    public ResponseEntity<List<Category>> getAllCategories(Principal principal, @Param("userId") Long userId) throws Exception{
 
         List<Category> categories = categoryService.getAllCategories(userId);
 
@@ -32,25 +33,27 @@ public class CategoryController {
     }
 
     @PostMapping("/category")
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody Category category, UriComponentsBuilder uriComponentsBuilder){
+    public ResponseEntity<CategoryResponse> createCategory(Principal principal, @RequestBody Category category,
+                                                           UriComponentsBuilder uriComponentsBuilder) throws Exception {
 
-        Category newCategory = categoryService.createCategory(category);
+        Category newCategory = categoryService.createCategory(principal, category);
         URI uri = uriComponentsBuilder.path("/category/{id}").buildAndExpand(newCategory.getId()).toUri();
 
         return ResponseEntity.created(uri).body(new CategoryResponse(newCategory));
     }
 
     @PutMapping("/category/{id}")
-    public ResponseEntity<CategoryResponse> updateCategory(@RequestBody Category category, @PathVariable("id") Long id){
-        Category updatedCategory = categoryService.updateCategory(category, id);
+    public ResponseEntity<CategoryResponse> updateCategory(Principal principal, @RequestBody Category category,
+                                                           @PathVariable("id") Long id) throws Exception{
+        Category updatedCategory = categoryService.updateCategory(principal, category, id);
 
         return ResponseEntity.ok(new CategoryResponse(updatedCategory));
     }
 
     @DeleteMapping("/category/{id}")
-    public ResponseEntity deleteCategory(@PathVariable("id") Long id){
+    public ResponseEntity deleteCategory(Principal principal, @PathVariable("id") Long id) throws Exception{
 
-        categoryService.deleteCategory(id);
+        categoryService.deleteCategory(principal, id);
 
         return ResponseEntity.noContent().build();
     }

@@ -11,6 +11,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,48 +21,60 @@ public class PasswordService {
     private final PasswordRepository passwordRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final UserService userService;
 
     @Autowired
     public PasswordService(PasswordRepository passwordRepository, UserRepository userRepository,
-                           CategoryRepository categoryRepository) {
+                           CategoryRepository categoryRepository, UserService userService) {
         this.passwordRepository = passwordRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.userService = userService;
     }
 
-    public List<Password> getAllPasswordsByUserId(Long userId) {
+    public List<Password> getAllPasswordsByUserId(Principal principal, Long userId) throws Exception {
+        User userPrincipal =
+                userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
+                        "User not found"));
+        Boolean isAdmin = userService.isPrincipalAdmin(principal);
+
+        if(!userPrincipal.getId().equals(userId) && !isAdmin) {
+            throw new AccessDeniedException("Access denied");
+        }
+
         return passwordRepository.findAllByUserId(userId);
     }
 
-    public Password createPassword(Password password) {
-        Optional<User> user = userRepository.findById(password.getUserId());
-        Optional<Category> category = categoryRepository.findById(password.getCategoryId());
+    public Password createPassword(Principal principal, Password password) throws Exception{
+        User user = userRepository.findById(password.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Category category = categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new EntityNotFoundException("Category not found"));
+        Boolean isAdmin = userService.isPrincipalAdmin(principal);
 
-        if(user.isEmpty())  {
-            throw new EntityNotFoundException("User not exist");
+        if(category.getUserId() != password.getUserId()) {
+            throw new IllegalStateException("Category not belong to user");
         }
-        if(category.isEmpty())  {
-            throw new EntityNotFoundException("Category not exist");
+        if(!user.getId().equals(password.getUserId()) && !isAdmin) {
+            throw new AccessDeniedException("Access denied");
         }
-        category.ifPresent(c -> {
-            if(c.getUserId() != password.getUserId()) {
-                throw new IllegalStateException("Category not belong to user");
-            }
-        });
 
         Password newPassword = passwordRepository.save(password);
         return newPassword;
     }
 
     @Transactional
-    public Password updatePassword(Long passwordId, Password password) {
+    public Password updatePassword(Principal principal, Long passwordId, Password password) throws Exception {
         Password passwordToUpdate = passwordRepository.findById(passwordId).orElseThrow(() -> new EntityNotFoundException(
                 "Password does not " +
                 "exist"));
         Category category =
                 categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(
                         "Category does not exist"));
+        User userPrincipal = userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Boolean isAdmin = userService.isPrincipalAdmin(principal);
 
+        if(userPrincipal.getId() != passwordToUpdate.getUserId() && !isAdmin) {
+            throw new AccessDeniedException("Access denied");
+        }
         if(category.getUserId()!= passwordToUpdate.getUserId()) {
             throw new IllegalStateException("Category not belong to user");
         }
