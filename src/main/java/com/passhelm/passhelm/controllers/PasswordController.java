@@ -50,8 +50,8 @@ public class PasswordController {
     }
 
     @DeleteMapping("/password/{passwordId}")
-    public ResponseEntity deletePassword(@PathVariable("passwordId") Long passwordId) {
-        passwordService.deletePassword(passwordId);
+    public ResponseEntity deletePassword(Principal principal, @PathVariable("passwordId") Long passwordId) throws Exception {
+        passwordService.deletePassword(principal, passwordId);
 
         return ResponseEntity.noContent().build();
     }

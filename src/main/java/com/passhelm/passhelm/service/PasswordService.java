@@ -107,12 +107,21 @@ public class PasswordService {
         return passwordToUpdate;
     }
 
-    public void deletePassword(Long passwordId) {
+    public void deletePassword(Principal principal, Long passwordId) throws Exception{
 
         Boolean passwordExists = passwordRepository.existsById(passwordId);
+        Password passwordToDelete =
+                passwordRepository.findById(passwordId).orElseThrow(() -> new EntityNotFoundException("Password does not exist"));
+        User userPrincipal =
+                userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
+                        "User not found"));
+        Boolean isAdmin = userService.isPrincipalAdmin(principal);
 
         if(!passwordExists) {
             throw new EntityNotFoundException("Password does not exist");
+        }
+        if(userPrincipal.getId()!= passwordToDelete.getUserId() && !isAdmin) {
+            throw new AccessDeniedException("Access denied");
         }
 
         passwordRepository.deleteById(passwordId);
