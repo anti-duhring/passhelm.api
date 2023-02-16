@@ -37,7 +37,14 @@ public class UserService {
     public User addUser(User user) {
         Optional<User> userByUsername = userRepository.findByUsername(user.getUsername());
         Optional<User> userByEmail = userRepository.findByEmail(user.getEmail());
-        user.setAuthorities(List.of("ROLE_USER"));
+
+        User newUser = new User(
+                user.getUsername(),
+                user.getName(),
+                user.getEmail(),
+                user.getPassword(),
+                List.of("ROLE_USER")
+        );
 
         if(userByUsername.isPresent()) {
             throw new IllegalStateException("Username taken");
@@ -46,9 +53,9 @@ public class UserService {
             throw new IllegalStateException("Email taken");
         }
 
-        User newUser = userRepository.save(user);
+        User userPersisted = userRepository.save(newUser);
 
-        return newUser;
+        return userPersisted;
 
     }
 

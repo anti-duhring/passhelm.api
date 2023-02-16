@@ -19,14 +19,14 @@ public class UserConfig {
                     "mateusvnlima",
                     "Mateus Vinicius",
                     "mateusvnlima@gmail.com",
-                    new BCryptPasswordEncoder().encode("123456"),
+                    "123456",
                     List.of("ROLE_USER", "ROLE_ADMIN")
             );
             User tom = new User(
                     "tombrady",
                     "Tom Brady",
                     "tombrady@gmail.com",
-                    new BCryptPasswordEncoder().encode("123456"),
+                    "123456",
                     List.of("ROLE_USER")
             );
 
