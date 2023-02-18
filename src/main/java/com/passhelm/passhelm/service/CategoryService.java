@@ -1,15 +1,16 @@
 package com.passhelm.passhelm.service;
 
 import com.passhelm.passhelm.models.Category;
-import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.UserRepository;
+import com.passhelm.passhelm.validators.user.ValidateIfIsTheSameUserOrAdmin;
+import com.passhelm.passhelm.validators.user.ValidateIfUserIsAdmin;
+import com.passhelm.passhelm.validators.category.ValidateIfCategoryHasEmptyProperties;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.security.Principal;
 import java.util.List;
 
@@ -19,13 +20,19 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final ValidateIfUserIsAdmin validateIfUserIsAdmin;
+    private final ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin;
+    private final ValidateIfCategoryHasEmptyProperties validateIfCategoryHasEmptyProperties;
 
     @Autowired
-    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository, UserService userService) {
+    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository, UserService userService, ValidateIfUserIsAdmin validateIfUserIsAdmin, ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin, ValidateIfCategoryHasEmptyProperties validateIfCategoryHasEmptyProperties) {
 
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.validateIfUserIsAdmin = validateIfUserIsAdmin;
+        this.validateIfIsTheSameUserOrAdmin = validateIfIsTheSameUserOrAdmin;
+        this.validateIfCategoryHasEmptyProperties = validateIfCategoryHasEmptyProperties;
     }
 
     public List<Category> getAllCategories(Long userId) throws Exception {
@@ -41,22 +48,8 @@ public class CategoryService {
 
     public Category createCategory(Principal principal, Category category) throws Exception {
 
-        User user = userRepository.findById(category.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        Boolean isAdmin = userService.isPrincipalAdmin(principal);
-
-        if(category.getLabel() == null || category.getLabel().isEmpty()) {
-            throw new IllegalStateException("Label cannot be empty");
-        }
-        if(category.getColor() == null || category.getColor().isEmpty()) {
-            throw new IllegalStateException("Color cannot be empty");
-        }
-        if(category.getUserId() == null) {
-            throw new IllegalStateException("User Id cannot be empty");
-        }
-        if(!user.getUsername().equals(principal.getName()) && !isAdmin) {
-            throw new AccessDeniedException("Access denied");
-        }
-
+        validateIfIsTheSameUserOrAdmin.validate(principal, category.getUserId());
+        validateIfCategoryHasEmptyProperties.validate(category);
 
         return categoryRepository.save(category);
     }
@@ -67,12 +60,7 @@ public class CategoryService {
         Category categoryToUpdate = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 "Category does not exist"));
 
-        Boolean isAdmin = userService.isPrincipalAdmin(principal);
-        User user =
-                userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException());
-        if(!isAdmin && !user.getId().equals(categoryToUpdate.getUserId())) {
-            throw new AccessDeniedException("Access denied");
-        }
+        validateIfIsTheSameUserOrAdmin.validate(principal, categoryToUpdate.getUserId());
 
         if(category.getColor() != categoryToUpdate.getColor()) {
             categoryToUpdate.setColor(category.getColor());
@@ -89,14 +77,8 @@ public class CategoryService {
         Category categoryToDelete = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
                 "Category does not exist"));
 
-        Boolean isAdmin = userService.isPrincipalAdmin(principal);
-        User user =
-                userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
-                        "User not found"));
+        validateIfIsTheSameUserOrAdmin.validate(principal, categoryToDelete.getUserId());
 
-        if(!isAdmin && !user.getId().equals(categoryToDelete.getUserId())) {
-            throw new AccessDeniedException("Access denied");
-        }
 
 
         categoryRepository.deleteById(id);

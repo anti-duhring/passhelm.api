@@ -3,6 +3,7 @@ package com.passhelm.passhelm.controllers;
 import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.service.UserService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,16 +29,10 @@ public class AdminController {
     public ResponseEntity updateUserRole(
             Principal principal,
             @PathVariable("userId") Long userId,
-            @RequestBody List<String> roles
-    ) {
+            @RequestBody @Valid List<String> roles
+    ) throws Exception {
 
-        Boolean isAdmin = userService.isPrincipalAdmin(principal);
-
-        if(!isAdmin) {
-            return ResponseEntity.status(403).build();
-        }
-
-        User userUpdated = userService.updateUserRoles(userId, roles);
+        User userUpdated = userService.updateUserRoles(principal, userId, roles);
 
         return ResponseEntity.ok(userUpdated);
     }

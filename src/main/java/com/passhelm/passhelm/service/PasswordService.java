@@ -2,19 +2,20 @@ package com.passhelm.passhelm.service;
 
 import com.passhelm.passhelm.models.Category;
 import com.passhelm.passhelm.models.Password;
-import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.PasswordRepository;
 import com.passhelm.passhelm.repository.UserRepository;
+import com.passhelm.passhelm.validators.password.ValidateIfPasswordHasEmptyProperties;
+import com.passhelm.passhelm.validators.user.ValidateIfIsTheSameUserOrAdmin;
+import com.passhelm.passhelm.validators.user.ValidateIfUserIsAdmin;
+import com.passhelm.passhelm.validators.category.ValidaIfCategoryBelongToUser;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PasswordService {
@@ -22,40 +23,39 @@ public class PasswordService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final UserService userService;
+    private final ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin;
+    private final ValidateIfUserIsAdmin validateIfUserIsAdmin;
+    private final ValidaIfCategoryBelongToUser validaIfCategoryBelongToUser;
+    private final ValidateIfPasswordHasEmptyProperties validateIfPasswordHasEmptyProperties;
 
     @Autowired
     public PasswordService(PasswordRepository passwordRepository, UserRepository userRepository,
-                           CategoryRepository categoryRepository, UserService userService) {
+                           CategoryRepository categoryRepository, UserService userService, ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin, ValidateIfUserIsAdmin validateIfUserIsAdmin, ValidaIfCategoryBelongToUser validaIfCategoryBelongToUser, ValidateIfPasswordHasEmptyProperties validateIfPasswordHasEmptyProperties) {
         this.passwordRepository = passwordRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.userService = userService;
+        this.validateIfIsTheSameUserOrAdmin = validateIfIsTheSameUserOrAdmin;
+        this.validateIfUserIsAdmin = validateIfUserIsAdmin;
+        this.validaIfCategoryBelongToUser = validaIfCategoryBelongToUser;
+        this.validateIfPasswordHasEmptyProperties = validateIfPasswordHasEmptyProperties;
     }
 
     public List<Password> getAllPasswordsByUserId(Principal principal, Long userId) throws Exception {
-        User userPrincipal =
-                userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
-                        "User not found"));
-        Boolean isAdmin = userService.isPrincipalAdmin(principal);
 
-        if(!userPrincipal.getId().equals(userId) && !isAdmin) {
-            throw new AccessDeniedException("Access denied");
-        }
+        validateIfIsTheSameUserOrAdmin.validate(principal, userId);
 
         return passwordRepository.findAllByUserId(userId);
     }
 
     public Password createPassword(Principal principal, Password password) throws Exception{
-        User user = userRepository.findById(password.getUserId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        Category category = categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new EntityNotFoundException("Category not found"));
-        Boolean isAdmin = userService.isPrincipalAdmin(principal);
 
-        if(category.getUserId() != password.getUserId()) {
-            throw new IllegalStateException("Category not belong to user");
-        }
-        if(!user.getId().equals(password.getUserId()) && !isAdmin) {
-            throw new AccessDeniedException("Access denied");
-        }
+        validateIfIsTheSameUserOrAdmin.validate(principal, password.getUserId());
+        validateIfPasswordHasEmptyProperties.validate(password);
+
+        Category category = categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+        validaIfCategoryBelongToUser.validate(category, password.getUserId());
 
         Password newPassword = passwordRepository.save(password);
         return newPassword;
@@ -63,21 +63,17 @@ public class PasswordService {
 
     @Transactional
     public Password updatePassword(Principal principal, Long passwordId, Password password) throws Exception {
+
+        validateIfIsTheSameUserOrAdmin.validate(principal, password.getUserId());
+
         Password passwordToUpdate = passwordRepository.findById(passwordId).orElseThrow(() -> new EntityNotFoundException(
                 "Password does not " +
                 "exist"));
         Category category =
                 categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(
                         "Category does not exist"));
-        User userPrincipal = userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        Boolean isAdmin = userService.isPrincipalAdmin(principal);
 
-        if(userPrincipal.getId() != passwordToUpdate.getUserId() && !isAdmin) {
-            throw new AccessDeniedException("Access denied");
-        }
-        if(category.getUserId()!= passwordToUpdate.getUserId()) {
-            throw new IllegalStateException("Category not belong to user");
-        }
+        validaIfCategoryBelongToUser.validate(category, password.getUserId());
 
         if(password.getCategoryId()!= passwordToUpdate.getCategoryId()) {
             passwordToUpdate.setCategoryId(password.getCategoryId());
@@ -104,25 +100,19 @@ public class PasswordService {
             passwordToUpdate.setTitle(password.getTitle());
         }
 
+        validateIfPasswordHasEmptyProperties.validate(passwordToUpdate);
+
         return passwordToUpdate;
     }
 
     public void deletePassword(Principal principal, Long passwordId) throws Exception{
 
-        Boolean passwordExists = passwordRepository.existsById(passwordId);
         Password passwordToDelete =
                 passwordRepository.findById(passwordId).orElseThrow(() -> new EntityNotFoundException("Password does not exist"));
-        User userPrincipal =
-                userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
-                        "User not found"));
-        Boolean isAdmin = userService.isPrincipalAdmin(principal);
 
-        if(!passwordExists) {
-            throw new EntityNotFoundException("Password does not exist");
-        }
-        if(userPrincipal.getId()!= passwordToDelete.getUserId() && !isAdmin) {
-            throw new AccessDeniedException("Access denied");
-        }
+        validateIfIsTheSameUserOrAdmin.validate(principal, passwordToDelete.getUserId());
+
+
 
         passwordRepository.deleteById(passwordId);
     }

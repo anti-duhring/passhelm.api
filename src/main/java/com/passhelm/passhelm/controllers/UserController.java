@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<User>> getAllUsers(Principal principal) throws AccessDeniedException {
+    public ResponseEntity<List<User>> getAllUsers(Principal principal) throws Exception {
 
         List<User> users = userService.getAllUsers(principal);
 
@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @DeleteMapping(path = "/user/{id}")
-    public ResponseEntity deleteUser(Principal principal, @PathVariable("id") Long id) throws AccessDeniedException {
+    public ResponseEntity deleteUser(Principal principal, @PathVariable("id") Long id) throws Exception {
         userService.deleteUser(id, principal);
 
         return ResponseEntity.noContent().build();
@@ -61,7 +61,7 @@ public class UserController {
             Principal principal,
             @PathVariable("id") Long id,
             @RequestBody User user
-    ) throws AccessDeniedException {
+    ) throws Exception {
 
         User updatedUser = userService.updateUser(id, user, principal);
 

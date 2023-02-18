@@ -2,13 +2,13 @@ package com.passhelm.passhelm.service;
 
 import com.passhelm.passhelm.models.User;
 import com.passhelm.passhelm.repository.UserRepository;
+import com.passhelm.passhelm.validators.user.ValidateIfIsTheSameUserOrAdmin;
+import com.passhelm.passhelm.validators.user.ValidateIfUserIsAdmin;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -19,17 +19,22 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    private final ValidateIfUserIsAdmin validateIfUserIsAdmin;
+
+    @Autowired
+    private final ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin;
+
+    @Autowired
+    public UserService(UserRepository userRepository, ValidateIfUserIsAdmin validateIfUserIsAdmin, ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin) {
         this.userRepository = userRepository;
+        this.validateIfUserIsAdmin = validateIfUserIsAdmin;
+        this.validateIfIsTheSameUserOrAdmin = validateIfIsTheSameUserOrAdmin;
     }
 
-    public List<User> getAllUsers(Principal principal) throws AccessDeniedException {
+    public List<User> getAllUsers(Principal principal) throws Exception {
 
-        Boolean isAdmin = this.isPrincipalAdmin(principal);
-        if(!isAdmin) {
-            throw new AccessDeniedException("Access denied");
+        validateIfUserIsAdmin.validate(principal);
 
-        }
         return userRepository.findAll();
     }
 
@@ -59,14 +64,11 @@ public class UserService {
 
     }
 
-    public void deleteUser(Long id, Principal principal) throws AccessDeniedException {
+    public void deleteUser(Long id, Principal principal) throws Exception {
+
+        validateIfUserIsAdmin.validate(principal);
 
         Boolean userExists = userRepository.existsById(id);
-        Boolean isAdmin = this.isPrincipalAdmin(principal);
-        if(!isAdmin) {
-            throw new AccessDeniedException("Access denied");
-
-        }
         if(!userExists) {
             throw new EntityNotFoundException("User does not exist");
         }
@@ -79,14 +81,9 @@ public class UserService {
             Long id,
             User user,
             Principal principal
-    ) throws AccessDeniedException {
+    ) throws Exception {
 
-        Boolean isAdmin = this.isPrincipalAdmin(principal);
-        Long principalId = userRepository.findByUsername(principal.getName()).get().getId();
-        if(!isAdmin && principalId!= id) {
-            throw new AccessDeniedException("Access denied");
-
-        }
+        validateIfIsTheSameUserOrAdmin.validate(principal, id);
 
         User userToUpdate = userRepository.findById(id).orElseThrow(() -> new IllegalStateException("User does not " +
                 "exist"));
@@ -127,7 +124,10 @@ public class UserService {
         return user.get();
     }
 
-    public User updateUserRoles(Long id, List<String> roles) {
+    public User updateUserRoles(Principal principal, Long id, List<String> roles) throws Exception {
+
+        validateIfUserIsAdmin.validate(principal);
+
         User userToUpdate =
                 userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User does not " + "exist"));
 
@@ -137,10 +137,4 @@ public class UserService {
         return userUpdated;
     }
 
-    public Boolean isPrincipalAdmin(Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
-                "User does not " + "exist"));
-
-        return user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
-    }
 }
