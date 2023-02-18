@@ -3,6 +3,7 @@ package com.passhelm.passhelm.controllers;
 import com.passhelm.passhelm.models.Password;
 import com.passhelm.passhelm.records.PasswordResponse;
 import com.passhelm.passhelm.service.PasswordService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,7 @@ public class PasswordController {
     public ResponseEntity<PasswordResponse> updatePassword(Principal principal,
                                                            @PathVariable("passwordId") Long passwordId,
                                                            @RequestBody Password password) throws Exception{
+        System.out.println(passwordId);
         Password passwordUpdated = passwordService.updatePassword(principal, passwordId, password);
 
         return ResponseEntity.ok(new PasswordResponse(passwordUpdated));

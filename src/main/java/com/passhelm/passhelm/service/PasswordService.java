@@ -64,8 +64,6 @@ public class PasswordService {
     @Transactional
     public Password updatePassword(Principal principal, Long passwordId, Password password) throws Exception {
 
-        validateIfIsTheSameUserOrAdmin.validate(principal, password.getUserId());
-
         Password passwordToUpdate = passwordRepository.findById(passwordId).orElseThrow(() -> new EntityNotFoundException(
                 "Password does not " +
                 "exist"));
@@ -73,7 +71,8 @@ public class PasswordService {
                 categoryRepository.findById(password.getCategoryId()).orElseThrow(() -> new EntityNotFoundException(
                         "Category does not exist"));
 
-        validaIfCategoryBelongToUser.validate(category, password.getUserId());
+        validateIfIsTheSameUserOrAdmin.validate(principal, passwordToUpdate.getUserId());
+        validaIfCategoryBelongToUser.validate(category, passwordToUpdate.getUserId());
 
         if(password.getCategoryId()!= passwordToUpdate.getCategoryId()) {
             passwordToUpdate.setCategoryId(password.getCategoryId());
