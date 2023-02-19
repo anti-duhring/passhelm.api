@@ -112,7 +112,7 @@ class AdminControllerTest {
     @DisplayName("Should get 200 when change user roles")
     void shouldGet200WhenChangeUserRoles() throws Exception{
         String token = login("mateusvnlima", "123456");
-        URI uri = URI.create("http://localhost:8080/api/v1/admin/update-user-role/3");
+        URI uri = URI.create("http://localhost:8080/api/v1/admin/update-user-role/1");
         String json = "[\n" +
                 "        \"ROLE_USER\",\n" +
                 "        \"ROLE_ADMIN\"\n" +
@@ -125,7 +125,7 @@ class AdminControllerTest {
                         .content(json)
         ).andExpectAll(
                 MockMvcResultMatchers.status().isOk(),
-                MockMvcResultMatchers.jsonPath("$.username").value("test_user_role")
+                MockMvcResultMatchers.jsonPath("$.username").value("mateusvnlima")
         );
     }
 

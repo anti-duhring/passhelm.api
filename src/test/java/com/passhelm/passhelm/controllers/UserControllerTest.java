@@ -79,7 +79,7 @@ class UserControllerTest {
     @Order(1)
     @DisplayName("Should return 200 when get all users")
     void shouldGet200StatusCodeWhenGetAllUsers() throws Exception {
-        String token = this.login("user_test", "123456");
+        String token = this.login("mateusvnlima", "123456");
         URI uri = URI.create("http://localhost:8080/api/v1/user");
 
         mockMvc
