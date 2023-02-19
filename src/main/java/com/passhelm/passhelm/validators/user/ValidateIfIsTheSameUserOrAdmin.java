@@ -22,7 +22,7 @@ public class ValidateIfIsTheSameUserOrAdmin implements ValidateUserActions{
 
 
     public void validate(Principal principal) throws Exception {
-
+        throw new AccessDeniedException("Access denied");
     }
 
     public void validate(Principal principal, Long userId) throws Exception{

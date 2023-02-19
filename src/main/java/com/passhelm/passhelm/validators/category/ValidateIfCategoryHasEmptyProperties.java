@@ -3,6 +3,8 @@ package com.passhelm.passhelm.validators.category;
 import com.passhelm.passhelm.models.Category;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.AccessDeniedException;
+
 @Component
 public class ValidateIfCategoryHasEmptyProperties implements ValidateCategory {
 
@@ -19,7 +21,7 @@ public class ValidateIfCategoryHasEmptyProperties implements ValidateCategory {
     }
 
 
-    public void validate(Category category, Long userId) {
-
+    public void validate(Category category, Long userId) throws AccessDeniedException {
+        throw new AccessDeniedException("Access denied");
     }
 }

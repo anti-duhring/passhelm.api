@@ -35,8 +35,8 @@ public class CategoryService {
         this.validateIfCategoryHasEmptyProperties = validateIfCategoryHasEmptyProperties;
     }
 
-    public List<Category> getAllCategories(Long userId) throws Exception {
-
+    public List<Category> getAllCategories(Principal principal, Long userId) throws Exception {
+        validateIfIsTheSameUserOrAdmin.validate(principal, userId);
         if (userId == null) {
             throw new IllegalStateException("User Id cannot be empty");
         }

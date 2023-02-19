@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.net.URI;
+import java.nio.file.AccessDeniedException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,25 +26,67 @@ class CategoryControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private String login(String login, String password) throws Exception{
+        URI uriLogin = URI.create("http://localhost:8080/api/v1/login");
+        String dataLogin = "{\n" +
+                "    \"login\": \"" + login + "\",\n" +
+                "    \"password\": \"" + password + "\"\n" +
+                "}";
+        final String[] token = {""};
+        try {
+            mockMvc
+                    .perform(MockMvcRequestBuilders
+                            .post(uriLogin)
+                            .contentType("application/json")
+                            .content(dataLogin)
+                    )
+                    .andDo(result -> token[0] = result.getResponse().getContentAsString().split("\"token" +
+                            "\":\"")[1].split("\"")[0]);
+        } catch (Exception e) {
+            throw new AccessDeniedException("Error when trying to login");
+        }
+
+        return token[0];
+    }
+
     @Test
     @Order(1)
+    @DisplayName("Should get 200 when get all categories from itself")
     void shouldGet200StatusCodeWhenGetAllCategories() throws Exception {
-
+        String token = login("mateusvnlima", "123456");
         URI uri = URI.create("http://localhost:8080/api/v1/category?userId=1");
 
         mockMvc.perform(
                 MockMvcRequestBuilders
                         .get(uri)
+                        .header("Authorization", "Bearer " + token)
         )
                 .andExpectAll(
-                        MockMvcResultMatchers.status().is(200)
+                        MockMvcResultMatchers.status().isOk()
+                );
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Should get 403 when get all categories from another user")
+    void shouldGet403StatusCodeWhenGetAllCategoriesFromAnotherUser() throws Exception {
+        String token = login("tombrady", "123456");
+        URI uri = URI.create("http://localhost:8080/api/v1/category?userId=1");
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders
+                                .get(uri)
+                                .header("Authorization", "Bearer " + token)
+                )
+                .andExpectAll(
+                        MockMvcResultMatchers.status().isForbidden()
                 );
     }
 
     @Test
     @Order(2)
     void shouldGet200StatusCodeAndCategoryDataWhenCreateCategory() throws Exception{
-
+        String token = login("mateusvnlima", "123456");
         URI uri = URI.create("http://localhost:8080/api/v1/category");
 
         String json = "{\n" +
@@ -58,6 +101,7 @@ class CategoryControllerTest {
                                 .post(uri)
                                 .contentType("application/json")
                                 .content(json)
+                                .header("Authorization", "Bearer " + token)
                 )
                 .andExpectAll(
                         MockMvcResultMatchers.status().isCreated(),
@@ -162,6 +206,7 @@ class CategoryControllerTest {
     @Test
     @Order(6)
     void shouldGet200StatusAndCategoryDataWhenUpdateCategory() throws Exception{
+        String token = login("mateusvnlima", "123456");
         URI uri = URI.create("http://localhost:8080/api/v1/category/2");
 
         String json = "{\n" +
@@ -175,6 +220,7 @@ class CategoryControllerTest {
                              .put(uri)
                              .contentType("application/json")
                             .content(json)
+                                .header("Authorization", "Bearer " + token)
                 )
                 .andExpectAll(
                         MockMvcResultMatchers.status().is(200),
@@ -188,12 +234,14 @@ class CategoryControllerTest {
     @Test
     @Order(7)
     void shouldGet200StatusWhenDeleteCategory() throws Exception{
+        String token = login("mateusvnlima", "123456");
         URI uri = URI.create("http://localhost:8080/api/v1/category/2");
 
         mockMvc
                 .perform(
                         MockMvcRequestBuilders
                               .delete(uri)
+                                .header("Authorization", "Bearer " + token)
                 )
                 .andExpectAll(
                         MockMvcResultMatchers.status().isNoContent()

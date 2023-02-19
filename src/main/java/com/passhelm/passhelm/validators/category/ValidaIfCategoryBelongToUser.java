@@ -7,6 +7,8 @@ import com.passhelm.passhelm.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.AccessDeniedException;
+
 @Component
 public class ValidaIfCategoryBelongToUser implements ValidateCategory{
 
@@ -18,11 +20,11 @@ public class ValidaIfCategoryBelongToUser implements ValidateCategory{
         this.userRepository = userRepository;
     }
 
-    public void validate(Category category) {
-
+    public void validate(Category category) throws AccessDeniedException {
+        throw new AccessDeniedException("Access denied");
     }
 
-    public void validate(Category category, Long userId) {
+    public void validate(Category category, Long userId) throws AccessDeniedException {
         Category categoryEntity =
                 categoryRepository.findById(category.getId()).orElseThrow(() -> new EntityNotFoundException("Category not " +
                         "found"));

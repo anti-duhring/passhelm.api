@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
@@ -29,7 +30,8 @@ public class UserRepositoryTest {
                 "mateusvnlima",
                 "Mateus Vinicius",
                 "mateusvnlima@gmail.com",
-                "123456"
+                "123456",
+                List.of("ROLE_USER", "ROLE_ADMIN")
         );
         em.persist(newUser);
 
@@ -56,7 +58,8 @@ public class UserRepositoryTest {
                 "mateusvnlima",
                 "Mateus Vinicius",
                 "mateusvnlima@gmail.com",
-                "123456"
+                "123456",
+                List.of("ROLE_USER", "ROLE_ADMIN")
         );
         em.persist(newUser);
 

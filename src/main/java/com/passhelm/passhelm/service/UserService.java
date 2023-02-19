@@ -35,6 +35,8 @@ public class UserService {
 
         validateIfUserIsAdmin.validate(principal);
 
+        System.out.println(principal.getName());
+
         return userRepository.findAll();
     }
 

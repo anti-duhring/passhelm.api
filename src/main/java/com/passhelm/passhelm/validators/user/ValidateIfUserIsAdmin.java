@@ -22,10 +22,6 @@ public class ValidateIfUserIsAdmin implements ValidateUserActions{
 
 
     public void validate(Principal principal) throws Exception {
-
-    }
-
-    public void validate(Principal principal, Long userId) throws Exception {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
                 "User does not " + "exist"));
         Boolean isPrincipalAdmin = user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
@@ -33,5 +29,9 @@ public class ValidateIfUserIsAdmin implements ValidateUserActions{
         if(!isPrincipalAdmin) {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    public void validate(Principal principal, Long userId) throws Exception {
+        throw new AccessDeniedException("Access denied");
     }
 }

@@ -27,7 +27,7 @@ public class CategoryController {
     @GetMapping("/category")
     public ResponseEntity<List<Category>> getAllCategories(Principal principal, @Param("userId") Long userId) throws Exception{
 
-        List<Category> categories = categoryService.getAllCategories(userId);
+        List<Category> categories = categoryService.getAllCategories(principal, userId);
 
         return ResponseEntity.ok(categories);
     }
