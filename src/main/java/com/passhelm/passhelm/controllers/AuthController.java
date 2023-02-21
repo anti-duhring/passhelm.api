@@ -29,7 +29,8 @@ public class AuthController {
     public ResponseEntity login(@RequestBody @Valid AuthData authData) {
 
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(authData.login(),
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(authData.login(),
                 authData.password());
         Authentication authenticate = manager.authenticate(authenticationToken);
 

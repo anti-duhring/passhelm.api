@@ -1,7 +1,9 @@
 package com.passhelm.passhelm.service;
 
+import com.passhelm.passhelm.infra.security.EncryptService;
 import com.passhelm.passhelm.models.Category;
 import com.passhelm.passhelm.models.Password;
+import com.passhelm.passhelm.records.PasswordResponse;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.PasswordRepository;
 import com.passhelm.passhelm.repository.UserRepository;
@@ -27,10 +29,16 @@ public class PasswordService {
     private final ValidateIfUserIsAdmin validateIfUserIsAdmin;
     private final ValidaIfCategoryBelongToUser validaIfCategoryBelongToUser;
     private final ValidateIfPasswordHasEmptyProperties validateIfPasswordHasEmptyProperties;
+    private final EncryptService encryptService;
 
     @Autowired
     public PasswordService(PasswordRepository passwordRepository, UserRepository userRepository,
-                           CategoryRepository categoryRepository, UserService userService, ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin, ValidateIfUserIsAdmin validateIfUserIsAdmin, ValidaIfCategoryBelongToUser validaIfCategoryBelongToUser, ValidateIfPasswordHasEmptyProperties validateIfPasswordHasEmptyProperties) {
+                           CategoryRepository categoryRepository, UserService userService,
+                           ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin,
+                           ValidateIfUserIsAdmin validateIfUserIsAdmin,
+                           ValidaIfCategoryBelongToUser validaIfCategoryBelongToUser,
+                           ValidateIfPasswordHasEmptyProperties validateIfPasswordHasEmptyProperties,
+                           EncryptService encryptService) {
         this.passwordRepository = passwordRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
@@ -39,6 +47,7 @@ public class PasswordService {
         this.validateIfUserIsAdmin = validateIfUserIsAdmin;
         this.validaIfCategoryBelongToUser = validaIfCategoryBelongToUser;
         this.validateIfPasswordHasEmptyProperties = validateIfPasswordHasEmptyProperties;
+        this.encryptService = encryptService;
     }
 
     public List<Password> getAllPasswordsByUserId(Principal principal, Long userId) throws Exception {
@@ -57,7 +66,9 @@ public class PasswordService {
 
         validaIfCategoryBelongToUser.validate(category, password.getUserId());
 
+        Password passwordEncrypted = encryptService.encryptPassword(password);
         Password newPassword = passwordRepository.save(password);
+
         return newPassword;
     }
 

@@ -75,6 +75,42 @@ class UserControllerTest {
         return token[0];
     }
 
+    private String createUser() throws Exception{
+        URI uri = URI.create("http://localhost:8080/api/v1/user");
+
+        String json = "{\n" +
+                "    \"name\": \"user_test_update\",\n" +
+                "    \"email\": \"user_test_update@gmail.com\",\n" +
+                "    \"username\": \"user_test_update\",\n" +
+                "    \"password\": \"123456\"\n" +
+                "}";
+
+        final String[] userId = {""};
+
+        mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post(uri)
+                        .contentType("application/json")
+                        .content(json)
+                )
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isCreated()
+                )
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.name").value("user_test_update")
+                )
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.email").value("user_test_update@gmail.com")
+                )
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.username").value("user_test_update")
+                ).andDo(result -> userId[0] =
+                        result.getResponse().getContentAsString().split("id\":")[1].split(",")[0]);
+
+        return userId[0];
+    }
+
     @Test
     @Order(1)
     @DisplayName("Should return 200 when get all users")
@@ -133,8 +169,9 @@ class UserControllerTest {
     @Order(3)
     @DisplayName("Should return 200 and user data when update a user")
     void shouldGet200AndUpdateUser() throws Exception {
-        String token = login("user_test", "123456");
-        URI uri = URI.create("http://localhost:8080/api/v1/user/3");
+        String userId = createUser();
+        String token = login("user_test_update", "123456");
+        URI uri = URI.create("http://localhost:8080/api/v1/user/"+userId);
 
         String json = "{\n" +
                 "    \"name\": \"Mac Jones\",\n" +

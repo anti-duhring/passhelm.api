@@ -34,6 +34,7 @@ public class PasswordController {
     @PostMapping("/password")
     public ResponseEntity createPassword(Principal principal, @RequestBody Password password,
                                          UriComponentsBuilder uriBuilder) throws Exception {
+
         Password passwordCreated = passwordService.createPassword(principal, password);
 
         URI uri = uriBuilder.path("/password/{id}").buildAndExpand(passwordCreated.getId()).toUri();
