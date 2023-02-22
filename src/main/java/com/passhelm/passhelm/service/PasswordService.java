@@ -1,9 +1,7 @@
 package com.passhelm.passhelm.service;
 
-import com.passhelm.passhelm.infra.security.EncryptService;
 import com.passhelm.passhelm.models.Category;
 import com.passhelm.passhelm.models.Password;
-import com.passhelm.passhelm.records.PasswordResponse;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.PasswordRepository;
 import com.passhelm.passhelm.repository.UserRepository;
@@ -54,7 +52,13 @@ public class PasswordService {
 
         validateIfIsTheSameUserOrAdmin.validate(principal, userId);
 
-        return passwordRepository.findAllByUserId(userId);
+        List<Password> allPasswords = passwordRepository.findAllByUserId(userId);
+        List<Password> allPasswordsDecrypted = allPasswords.stream().map(password -> {
+            Password decryptedPassword = encryptService.decryptPassword(password);
+            return decryptedPassword;
+        }).toList();
+
+        return allPasswordsDecrypted;
     }
 
     public Password createPassword(Principal principal, Password password) throws Exception{
@@ -67,9 +71,10 @@ public class PasswordService {
         validaIfCategoryBelongToUser.validate(category, password.getUserId());
 
         Password passwordEncrypted = encryptService.encryptPassword(password);
-        Password newPassword = passwordRepository.save(password);
+        Password newPassword = passwordRepository.save(passwordEncrypted);
+        Password passwordDecrypted = encryptService.decryptPassword(newPassword);
 
-        return newPassword;
+        return passwordDecrypted;
     }
 
     @Transactional
@@ -111,8 +116,10 @@ public class PasswordService {
         }
 
         validateIfPasswordHasEmptyProperties.validate(passwordToUpdate);
+        Password passwordEncrypted = encryptService.encryptPassword(passwordToUpdate);
+        Password passwordDecrypted = encryptService.decryptPassword(passwordEncrypted);
 
-        return passwordToUpdate;
+        return passwordDecrypted;
     }
 
     public void deletePassword(Principal principal, Long passwordId) throws Exception{

@@ -1,4 +1,4 @@
-package com.passhelm.passhelm.infra.security;
+package com.passhelm.passhelm.service;
 
 import com.passhelm.passhelm.models.Password;
 import org.jasypt.encryption.StringEncryptor;
@@ -13,7 +13,15 @@ public class EncryptService {
     @Qualifier("jasyptStringEncryptor")
     private StringEncryptor encryptor;
     public Password encryptPassword(Password password) {
+        password.setLogin(encryptor.encrypt(password.getLogin()));
         password.setPassword(encryptor.encrypt(password.getPassword()));
+
+        return password;
+    }
+
+    public Password decryptPassword(Password password) {
+        password.setLogin(encryptor.decrypt(password.getLogin()));
+        password.setPassword(encryptor.decrypt(password.getPassword()));
 
         return password;
     }

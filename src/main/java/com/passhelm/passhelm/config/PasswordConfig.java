@@ -25,14 +25,14 @@ public class PasswordConfig {
                     1L,
                     1L,
                     "Instagram",
-                    "mtvozzy",
+                    encryptor.encrypt("mtvozzy"),
                     encryptor.encrypt("123456")
             );
             Password password2 = new Password(
                     1L,
                     2L,
                     "Facebook",
-                    "mateusvnlima",
+                    encryptor.encrypt("mateusvnlima"),
                     encryptor.encrypt("123456")
             );
 
