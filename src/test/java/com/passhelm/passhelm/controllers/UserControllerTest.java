@@ -59,18 +59,19 @@ class UserControllerTest {
                 "    \"password\": \"" + password + "\"\n" +
                 "}";
         final String[] token = {""};
-        try {
+
             mockMvc
                     .perform(MockMvcRequestBuilders
                             .post(uriLogin)
                             .contentType("application/json")
                             .content(dataLogin)
                     )
-                    .andDo(result -> token[0] = result.getResponse().getContentAsString().split("\"token" +
-                            "\":\"")[1].split("\"")[0]);
-        } catch (Exception e) {
-            throw new AccessDeniedException("Error when trying to login");
-        }
+                    .andDo(result -> {
+                        token[0] = result.getResponse().getContentAsString().split("\"token" +
+                                "\":\"")[1].split("\"")[0];
+                    });
+
+
 
         return token[0];
     }
@@ -107,7 +108,6 @@ class UserControllerTest {
                         .jsonPath("$.username").value("user_test_update")
                 ).andDo(result -> userId[0] =
                         result.getResponse().getContentAsString().split("id\":")[1].split(",")[0]);
-
         return userId[0];
     }
 
@@ -170,6 +170,8 @@ class UserControllerTest {
     @DisplayName("Should return 200 and user data when update a user")
     void shouldGet200AndUpdateUser() throws Exception {
         String userId = createUser();
+        System.out.println(userId);
+
         String token = login("user_test_update", "123456");
         URI uri = URI.create("http://localhost:8080/api/v1/user/"+userId);
 
