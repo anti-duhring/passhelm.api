@@ -3,6 +3,7 @@ package com.passhelm.passhelm.service;
 import com.passhelm.passhelm.models.Category;
 import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.UserRepository;
+import com.passhelm.passhelm.validators.category.ValidateIfCategoryExists;
 import com.passhelm.passhelm.validators.user.ValidateIfIsTheSameUserOrAdmin;
 import com.passhelm.passhelm.validators.user.ValidateIfUserIsAdmin;
 import com.passhelm.passhelm.validators.category.ValidateIfCategoryHasEmptyProperties;
@@ -20,19 +21,25 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final PasswordService passwordService;
+
     private final ValidateIfUserIsAdmin validateIfUserIsAdmin;
     private final ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin;
     private final ValidateIfCategoryHasEmptyProperties validateIfCategoryHasEmptyProperties;
+    private final ValidateIfCategoryExists validateIfCategoryExists;
 
     @Autowired
-    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository, UserService userService, ValidateIfUserIsAdmin validateIfUserIsAdmin, ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin, ValidateIfCategoryHasEmptyProperties validateIfCategoryHasEmptyProperties) {
+    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository, UserService userService, PasswordService passwordService, ValidateIfUserIsAdmin validateIfUserIsAdmin, ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin, ValidateIfCategoryHasEmptyProperties validateIfCategoryHasEmptyProperties, ValidateIfCategoryExists validateIfCategoryExists) {
 
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.passwordService = passwordService;
+
         this.validateIfUserIsAdmin = validateIfUserIsAdmin;
         this.validateIfIsTheSameUserOrAdmin = validateIfIsTheSameUserOrAdmin;
         this.validateIfCategoryHasEmptyProperties = validateIfCategoryHasEmptyProperties;
+        this.validateIfCategoryExists = validateIfCategoryExists;
     }
 
     public List<Category> getAllCategories(Principal principal, Long userId) throws Exception {
@@ -79,8 +86,8 @@ public class CategoryService {
 
         validateIfIsTheSameUserOrAdmin.validate(principal, categoryToDelete.getUserId());
 
-
-
+        passwordService.deleteAllPasswordsByCategory(principal, categoryToDelete);
         categoryRepository.deleteById(id);
+
     }
 }

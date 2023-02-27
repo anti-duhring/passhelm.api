@@ -37,6 +37,7 @@ public class Password {
         this.title = title;
         this.login = login;
         this.password = password;
+
     }
 
     public Password() {
@@ -45,6 +46,10 @@ public class Password {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
     public Long getUserId() {
         return userId;

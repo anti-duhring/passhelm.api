@@ -17,13 +17,13 @@ public class CategoryConfig {
             Category category1 = new Category(
                     1L,
                     "Food",
-                    "#000000"
+                    "#236c78"
                     );
 
             Category category2 = new Category(
-                    2L,
+                    1L,
                     "Drink",
-                    "#000000"
+                    "#f8a9ba"
                     );
 
             repository.saveAll(

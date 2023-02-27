@@ -98,14 +98,14 @@ public class PasswordService {
                 password.getPassword().length() > 0 &&
                 password.getPassword() != passwordToUpdate.getPassword()
         ) {
-            passwordToUpdate.setPassword(password.getPassword());
+            passwordToUpdate.setPassword(encryptService.encryptProperty(password.getPassword()));
         }
         if(
                 password.getLogin()!= null &&
                 password.getLogin().length() > 0 &&
                 password.getLogin()!= passwordToUpdate.getLogin()
         ) {
-            passwordToUpdate.setLogin(password.getLogin());
+            passwordToUpdate.setLogin(encryptService.encryptProperty(password.getLogin()));
         }
         if(
                 password.getTitle()!= null &&
@@ -116,8 +116,8 @@ public class PasswordService {
         }
 
         validateIfPasswordHasEmptyProperties.validate(passwordToUpdate);
-        Password passwordEncrypted = encryptService.encryptPassword(passwordToUpdate);
-        Password passwordDecrypted = encryptService.decryptPassword(passwordEncrypted);
+
+        Password passwordDecrypted = encryptService.decryptPassword(passwordToUpdate);
 
         return passwordDecrypted;
     }
@@ -132,5 +132,15 @@ public class PasswordService {
 
 
         passwordRepository.deleteById(passwordId);
+    }
+
+    public void deleteAllPasswordsByCategory(Principal principal, Category category) throws Exception{
+
+        validateIfIsTheSameUserOrAdmin.validate(principal, category.getUserId());
+
+        List<Password> passwords = passwordRepository.findAllByCategoryId(category.getId());
+        List<Long> passwordsIds = passwords.stream().map(Password::getId).toList();
+
+        passwordRepository.deleteAllById(passwordsIds);
     }
 }

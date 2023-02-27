@@ -51,7 +51,10 @@ public class CategoryController {
     }
 
     @DeleteMapping("/category/{id}")
-    public ResponseEntity deleteCategory(Principal principal, @PathVariable("id") Long id) throws Exception{
+    public ResponseEntity deleteCategory(
+            Principal principal,
+            @PathVariable("id") Long id
+    ) throws Exception{
 
         categoryService.deleteCategory(principal, id);
 

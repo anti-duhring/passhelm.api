@@ -10,4 +10,6 @@ public interface PasswordRepository extends JpaRepository<Password, Long> {
 
     Optional<Password> findById(Long id);
     List<Password> findAllByUserId(Long userId);
+
+    List<Password> findAllByCategoryId(Long id);
 }

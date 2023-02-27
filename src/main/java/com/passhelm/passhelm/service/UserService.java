@@ -139,4 +139,11 @@ public class UserService {
         return userUpdated;
     }
 
+    public User getUserByPrincipal(Principal principal) throws Exception {
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
+                "User not found"));
+
+        return user;
+    }
+
 }
