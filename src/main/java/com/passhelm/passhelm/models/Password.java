@@ -37,7 +37,6 @@ public class Password {
         this.title = title;
         this.login = login;
         this.password = password;
-
     }
 
     public Password() {
@@ -90,4 +89,5 @@ public class Password {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

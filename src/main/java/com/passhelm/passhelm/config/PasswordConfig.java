@@ -1,6 +1,7 @@
 package com.passhelm.passhelm.config;
 
 import com.passhelm.passhelm.models.Password;
+import com.passhelm.passhelm.repository.CategoryRepository;
 import com.passhelm.passhelm.repository.PasswordRepository;
 import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ public class PasswordConfig {
 
     @Bean
     CommandLineRunner commandLineRunner3(PasswordRepository repository) {
+
         return args -> {
             Password password1 = new Password(
                     1L,
