@@ -170,15 +170,16 @@ class UserControllerTest {
     @DisplayName("Should return 200 and user data when update a user")
     void shouldGet200AndUpdateUser() throws Exception {
         String userId = createUser();
-        System.out.println(userId);
 
         String token = login("user_test_update", "123456");
         URI uri = URI.create("http://localhost:8080/api/v1/user/"+userId);
 
         String json = "{\n" +
+                "    \"id\": " + userId + ",\n" +
                 "    \"name\": \"Mac Jones\",\n" +
                 "    \"email\": \"mac_jones@gmail.com\",\n" +
-                "    \"username\": \"mac_jones\"\n" +
+                "    \"username\": \"mac_jones\",\n" +
+                "    \"password\": \"123456\"\n" +
                 "}";
 
         mockMvc.perform(MockMvcRequestBuilders

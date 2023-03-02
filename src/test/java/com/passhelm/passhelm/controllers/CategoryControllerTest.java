@@ -224,7 +224,6 @@ class CategoryControllerTest {
                 )
                 .andExpectAll(
                         MockMvcResultMatchers.status().is(200),
-                        MockMvcResultMatchers.jsonPath("$.userId").value(2),
                         MockMvcResultMatchers.jsonPath("$.label").value("Rede Social"),
                         MockMvcResultMatchers.jsonPath("$.color").value("#FFFFFF")
 

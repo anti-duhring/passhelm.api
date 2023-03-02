@@ -117,8 +117,10 @@ class PasswordControllerTest {
     @DisplayName("Should get 200 and password data when update a password")
     void shouldGet200StatusCodeAndPasswordDataWhenUpdateAPassword() throws Exception {
         String token = login("mateusvnlima", "123456");
-        URI uri = URI.create("http://localhost:8080/api/v1/password/2");
+        URI uri = URI.create("http://localhost:8080/api/v1/password/1");
         String json = "{\n" +
+                "    \"id\": 1,\n" +
+                "    \"userId\": 1,\n" +
                 "    \"categoryId\": 1,\n" +
                 "    \"title\": \"Test2\",\n" +
                 "    \"login\": \"test2\",\n" +
@@ -146,7 +148,7 @@ class PasswordControllerTest {
     @DisplayName("Should get 204 when delete a password")
     void shouldGet204StatusCodeWhenDeleteAPassword() throws Exception {
         String token = login("mateusvnlima", "123456");
-        URI uri = URI.create("http://localhost:8080/api/v1/password/2");
+        URI uri = URI.create("http://localhost:8080/api/v1/password/1");
 
         mockMvc.perform(
                 MockMvcRequestBuilders.delete(uri)
