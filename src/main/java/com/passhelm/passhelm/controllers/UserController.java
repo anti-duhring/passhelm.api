@@ -1,10 +1,12 @@
 package com.passhelm.passhelm.controllers;
 
 import com.passhelm.passhelm.models.User;
+import com.passhelm.passhelm.records.ResetPasswordRequest;
 import com.passhelm.passhelm.records.UserResponse;
 import com.passhelm.passhelm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -66,6 +68,17 @@ public class UserController {
         User updatedUser = userService.updateUser(id, user, principal);
 
         return ResponseEntity.ok(new UserResponse(updatedUser));
+    }
+
+    @PutMapping(path = "/user/{id}/reset-password")
+    public ResponseEntity resetPassword(
+            Principal principal,
+            @PathVariable("id") Long id,
+            @RequestBody ResetPasswordRequest resetPasswordRequest
+            ) throws Exception {
+        userService.resetPassword(id, resetPasswordRequest, principal);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -24,6 +24,13 @@ public class ValidateIfIsTheSameUserOrAdmin implements ValidateUserActions{
     public void validate(Principal principal) throws Exception {
         throw new AccessDeniedException("Access denied");
     }
+    public void validate(User user) throws Exception {
+        throw new AccessDeniedException("Access denied");
+    }
+
+    public void validate(User user, String password) throws Exception {
+        throw new AccessDeniedException("Access denied");
+    }
 
     public void validate(Principal principal, Long userId) throws Exception{
         Boolean isPrincipalAdmin = this.isPrincipalAdmin(principal);

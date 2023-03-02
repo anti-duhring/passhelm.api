@@ -1,12 +1,16 @@
 package com.passhelm.passhelm.service;
 
 import com.passhelm.passhelm.models.User;
+import com.passhelm.passhelm.records.ResetPasswordRequest;
 import com.passhelm.passhelm.repository.UserRepository;
 import com.passhelm.passhelm.validators.user.ValidateIfIsTheSameUserOrAdmin;
+import com.passhelm.passhelm.validators.user.ValidateIfUserHasEmptyProperties;
 import com.passhelm.passhelm.validators.user.ValidateIfUserIsAdmin;
+import com.passhelm.passhelm.validators.user.ValidateUserPassword;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -18,24 +22,23 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    @Autowired
     private final ValidateIfUserIsAdmin validateIfUserIsAdmin;
-
-    @Autowired
     private final ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin;
+    private final ValidateUserPassword validateUserPassword;
+    private final ValidateIfUserHasEmptyProperties validateIfUserHasEmptyProperties;
 
     @Autowired
-    public UserService(UserRepository userRepository, ValidateIfUserIsAdmin validateIfUserIsAdmin, ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin) {
+    public UserService(UserRepository userRepository, ValidateIfUserIsAdmin validateIfUserIsAdmin, ValidateIfIsTheSameUserOrAdmin validateIfIsTheSameUserOrAdmin, ValidateUserPassword validateUserPassword, ValidateIfUserHasEmptyProperties validateIfUserHasEmptyProperties) {
         this.userRepository = userRepository;
         this.validateIfUserIsAdmin = validateIfUserIsAdmin;
         this.validateIfIsTheSameUserOrAdmin = validateIfIsTheSameUserOrAdmin;
+        this.validateUserPassword = validateUserPassword;
+        this.validateIfUserHasEmptyProperties = validateIfUserHasEmptyProperties;
     }
 
     public List<User> getAllUsers(Principal principal) throws Exception {
 
         validateIfUserIsAdmin.validate(principal);
-
-        System.out.println(principal.getName());
 
         return userRepository.findAll();
     }
@@ -86,6 +89,8 @@ public class UserService {
     ) throws Exception {
 
         validateIfIsTheSameUserOrAdmin.validate(principal, id);
+        validateIfUserHasEmptyProperties.validate(user);
+        validateUserPassword.validate(user);
 
         User userToUpdate = userRepository.findById(id).orElseThrow(() -> new IllegalStateException("User does not " +
                 "exist"));
@@ -122,7 +127,6 @@ public class UserService {
             throw new EntityNotFoundException("User does not exist");
         }
 
-
         return user.get();
     }
 
@@ -139,11 +143,20 @@ public class UserService {
         return userUpdated;
     }
 
-    public User getUserByPrincipal(Principal principal) throws Exception {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(() -> new EntityNotFoundException(
-                "User not found"));
+    public void resetPassword(Long id, ResetPasswordRequest resetPasswordRequest, Principal principal) throws Exception {
+        validateIfIsTheSameUserOrAdmin.validate(principal, id);
 
-        return user;
+        User userToUpdate = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User does not " +
+                "exists"));
+        validateUserPassword.validate(userToUpdate, resetPasswordRequest.oldPassword());
+
+        if(
+            !resetPasswordRequest.newPassword().isEmpty() &&
+            resetPasswordRequest.newPassword().length() > 0
+        ) {
+            userToUpdate.setPassword(new BCryptPasswordEncoder().encode(resetPasswordRequest.newPassword()));
+            userRepository.save(userToUpdate);
+        }
     }
 
 }
